@@ -186,6 +186,8 @@ public final class ZigBeeConsole {
                 try {
                     mainThread.interrupt();
                     mainThread.join();
+
+                    setState(State.Stopped);
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -236,7 +238,7 @@ public final class ZigBeeConsole {
     private void setState(final State state)
     {
         final State[] states = State.values();
-        final State nextState = states[this.state.ordinal()%states.length];
+        final State nextState = states[(this.state.ordinal()+1)%states.length];
 
         if(state!=nextState) {
             throw new ConsoleLifeCycleException("Invalid state set! Currently "+this.state.toString()+", expected "+nextState.toString()+", attempted "+state.toString());

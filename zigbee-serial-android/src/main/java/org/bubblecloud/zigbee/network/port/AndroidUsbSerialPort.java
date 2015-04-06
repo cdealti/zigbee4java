@@ -3,9 +3,9 @@ package org.bubblecloud.zigbee.network.port;
 
 import android.hardware.usb.*;
 import org.bubblecloud.zigbee.util.ByteUtils;
-import org.bubblecloud.zigbee.util.CircularFIFOByteBufferImpl;
+import org.bubblecloud.zigbee.util.CircularFIFOBufferImpl;
 import org.bubblecloud.zigbee.util.FIFOBuffers;
-import org.bubblecloud.zigbee.util.FIFOByteBuffer;
+import org.bubblecloud.zigbee.util.FIFOBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +95,9 @@ public class AndroidUsbSerialPort implements ZigBeePort
 
     private static final int BUFFER_SIZE=(4*1024);
 
-    private final FIFOByteBuffer
-        readBuffer  = new CircularFIFOByteBufferImpl(BUFFER_SIZE),
-        writeBuffer = new CircularFIFOByteBufferImpl(BUFFER_SIZE);
+    private final FIFOBuffer<Byte>
+        readBuffer  = new CircularFIFOBufferImpl<>(BUFFER_SIZE),
+        writeBuffer = new CircularFIFOBufferImpl<>(BUFFER_SIZE);
 
     private UsbRequest
         readRequest,
@@ -273,7 +273,13 @@ public class AndroidUsbSerialPort implements ZigBeePort
                             if (!isEnoughDataAlreadyBuffered)
                                 pullReadBuffer(TIMEOUT_MS);
 
-                            filled = FIFOBuffers.popInto(readBuffer, readBufferOut);
+                            Byte[] boxedArray = new Byte[readBufferOut.length];
+                            filled = FIFOBuffers.popInto(readBuffer, boxedArray);
+
+                            for(int i=0;i<filled;++i)
+                            {
+                                readBufferOut[i] = boxedArray[i];
+                            }
 
                             //logger.debug("Returning {} bytes from buffer",filled);
                         }

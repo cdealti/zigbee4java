@@ -304,7 +304,7 @@ public final class ZigBeeConsole {
      * @param line the line
      */
     private void print(final String line) {
-        printStream.println("\r" + line);
+        printStream.println(System.lineSeparator() + line);
         printStream.print("> ");
     }
 
@@ -314,7 +314,7 @@ public final class ZigBeeConsole {
      * @return line readLine from console or null if exception occurred.
      */
     private String readLine() {
-        printStream.print("\r> ");
+        printStream.print(System.lineSeparator()+"> ");
         try {
             final BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
             final String inputLine = bufferRead.readLine();

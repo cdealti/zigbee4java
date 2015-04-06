@@ -279,7 +279,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         if ((value = getCurrentChannel()) != channel) {
             logger.warn(
                     "The channel configuration differ from the channel configuration in use: " +
-                            "in use {}, while the configured is {}.\n" +
+                            "in use {}, while the configured is {}." + System.lineSeparator() +
                             "The ZigBee network should be reconfigured or configuration corrected.",
                     value, channel
             );
@@ -288,7 +288,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         if ((value = getCurrentPanId()) != pan) {
             logger.warn(
                     "The PanId configuration differ from the channel configuration in use: " +
-                            "in use {}, while the configured is {}.\n" +
+                            "in use {}, while the configured is {}." + System.lineSeparator() +
                             "The ZigBee network should be reconfigured or configuration corrected.",
                     value, pan
             );
@@ -297,7 +297,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         if ((value = getZigBeeNodeMode()) != mode.ordinal()) {
             logger.warn(
                     "The NetworkMode configuration differ from the channel configuration in use: " +
-                            "in use {}, while the configured is {}.\n" +
+                            "in use {}, while the configured is {}." + System.lineSeparator() +
                             "The ZigBee network should be reconfigured or configuration corrected.",
                     value, mode.ordinal()
             );

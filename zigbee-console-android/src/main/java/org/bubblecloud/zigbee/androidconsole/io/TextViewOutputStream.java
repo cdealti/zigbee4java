@@ -1,9 +1,16 @@
 package org.bubblecloud.zigbee.androidconsole.io;
 
+import android.content.Context;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.bubblecloud.zigbee.androidconsole.R;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 
 
 /**
@@ -11,11 +18,19 @@ import java.io.OutputStream;
  */
 public final class TextViewOutputStream extends OutputStream
 {
-    private final TextView textView;
+    private final Context context;
 
-    public TextViewOutputStream(final TextView textView)
+    private final LinearLayout mainScreen;
+
+    private Handler handler;
+
+
+    public TextViewOutputStream(Context context, LinearLayout screen)
     {
-        this.textView = textView;
+        this.context = context;
+        this.mainScreen = screen;
+
+        handler = new Handler(context.getMainLooper());
     }
 
     final StringBuilder stringBuilder = new StringBuilder();
@@ -31,9 +46,27 @@ public final class TextViewOutputStream extends OutputStream
             case '\r':
             {
                 final String logLine = stringBuilder.toString();
-                textView.append(logLine);
+                addLogEntry(logLine);
                 stringBuilder.setLength(0);
             }
         }
+    }
+
+    private void addLogEntry(final String log){
+
+        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        final TextView logText = (TextView)inflater.inflate(R.layout.display_entry,mainScreen,false);
+
+        logText.setText(log);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                mainScreen.addView(logText);
+            }
+        });
+
+
     }
 }

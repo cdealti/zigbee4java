@@ -21,11 +21,11 @@ public final class TextViewOutputStream extends OutputStream
     final StringBuilder stringBuilder = new StringBuilder();
 
     @Override
-    public void write(final int oneByte) throws IOException
+    public void write(final int character) throws IOException
     {
-        stringBuilder.append((char)oneByte);
+        stringBuilder.append((char)character);
 
-        switch(oneByte)
+        switch(character)
         {
             case '\n':
             case '\r':

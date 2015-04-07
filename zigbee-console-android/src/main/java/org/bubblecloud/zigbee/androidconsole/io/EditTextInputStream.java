@@ -17,7 +17,7 @@ import java.io.InputStream;
 /**
  * Created by Chris on 06/04/15.
  */
-public class EditTextInputStream extends InputStream
+public final class EditTextInputStream extends InputStream
 {
     final FIFOBuffer<Character> buffer = new CircularFIFOBufferImpl<Character>();
 

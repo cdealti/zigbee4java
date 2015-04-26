@@ -71,8 +71,8 @@ public final class ZigBeeConsole {
 	private final boolean resetNetwork;
     private final File networkStateFile;
 
-    private final InputStream inputStream;
-    private final PrintStream printStream;
+    private  InputStream inputStream;
+    private  PrintStream printStream;
 
     private final Set<Observer> observers = new HashSet<>();
 
@@ -81,8 +81,8 @@ public final class ZigBeeConsole {
 		this.pan          = pan;
 		this.channel      = channel;
 		this.resetNetwork = resetNetwork;
-        this.inputStream  = inputStream;
-        this.printStream  = new PrintStream(outputStream);
+       // this.inputStream  = inputStream;
+       // this.printStream  = new PrintStream(outputStream);
 
         networkStateFile = new File(NetworkStateFileName);
 
@@ -1327,4 +1327,20 @@ public final class ZigBeeConsole {
         }
     };
 
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public PrintStream getPrintStream() {
+        return printStream;
+    }
+
+    public void setPrintStream(PrintStream printStream) {
+        this.printStream = printStream;
+    }
 }

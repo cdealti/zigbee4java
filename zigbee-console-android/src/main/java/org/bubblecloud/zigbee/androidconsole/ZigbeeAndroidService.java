@@ -14,6 +14,7 @@ import org.bubblecloud.zigbee.network.port.AndroidUsbSerialPort;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 /**
  * Created by Jichen on 7/04/15.
@@ -75,7 +76,7 @@ public class ZigbeeAndroidService extends Service{
     }
 
     public void setOutput(OutputStream output){
-        console.setPrintStream(output);
+        console.setPrintStream(new PrintStream(output));
     }
 
     @Override

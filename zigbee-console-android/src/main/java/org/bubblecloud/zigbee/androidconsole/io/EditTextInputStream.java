@@ -2,6 +2,7 @@ package org.bubblecloud.zigbee.androidconsole.io;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,8 @@ public final class EditTextInputStream extends InputStream
     final Context context;
 
     private Handler handler;
+
+    private final static String TAG = EditTextInputStream.class.getSimpleName();
 
     final TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener()
     {
@@ -81,6 +84,7 @@ public final class EditTextInputStream extends InputStream
     @Override
     public int read() throws IOException
     {
+        Log.i(TAG, "Read called");
         synchronized(buffer)
         {
             while(buffer.size() == 0)

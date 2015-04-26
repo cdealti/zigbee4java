@@ -49,10 +49,9 @@ public final class EditTextInputStream extends InputStream
                     {
                         buffer.push(c);
                     }
-//
-//                    for(Character c:System.getProperty("line.separator").toCharArray()){
-//                        buffer.push(c);
-//                    }
+                    for(Character c:System.getProperty("line.separator").toCharArray()){
+                        buffer.push(c);
+                    }
 
 
 

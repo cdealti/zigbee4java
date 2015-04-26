@@ -317,8 +317,16 @@ public final class ZigBeeConsole {
     private String readLine() {
         printStream.print(System.lineSeparator()+"> ");
         try {
-            final BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
-            final String inputLine = bufferRead.readLine();
+
+            String inputLine = "";
+            char c;
+            while((c=(char)inputStream.read())!='\n')
+            {
+                inputLine += c;
+            }
+
+            //final BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
+            //final String inputLine = bufferRead.readLine();
             return inputLine;
         } catch(final IOException e) {
             return null;

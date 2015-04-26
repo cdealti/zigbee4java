@@ -45,6 +45,8 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
             zigbeeAndroidService.setInput(inputStream);
             zigbeeAndroidService.setOutput(outputStream);
 
+            inputStream.addInputEntry();
+
             if(zigbeeAndroidService.isConsoleStarted()){
                 handler.post(new Runnable() {
                     @Override
@@ -68,7 +70,7 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
         }
     };
 
-    private InputStream inputStream;
+    private EditTextInputStream inputStream;
 
     private OutputStream outputStream;
 

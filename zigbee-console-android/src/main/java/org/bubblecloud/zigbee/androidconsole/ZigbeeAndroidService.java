@@ -82,7 +82,13 @@ public class ZigbeeAndroidService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if(!consoleStarted){
-            startConsole();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    startConsole();
+                }
+            }).start();
+
         }
 
         return START_NOT_STICKY;

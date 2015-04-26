@@ -40,7 +40,8 @@ public final class EditTextInputStream extends InputStream
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
         {
-            if(actionId == EditorInfo.IME_ACTION_GO)
+
+            if(actionId == EditorInfo.IME_ACTION_UNSPECIFIED)
             {
                 synchronized(buffer)
                 {
@@ -48,10 +49,12 @@ public final class EditTextInputStream extends InputStream
                     {
                         buffer.push(c);
                     }
+//
+//                    for(Character c:System.getProperty("line.separator").toCharArray()){
+//                        buffer.push(c);
+//                    }
 
-                    for(Character c:System.getProperty("line.separator").toCharArray()){
-                        buffer.push(c);
-                    }
+
 
                     buffer.notify();
                 }
@@ -64,7 +67,7 @@ public final class EditTextInputStream extends InputStream
 //                InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 //                inputManager.toggleSoftInput(0, 0);
 
-                addInputEntry();
+                //addInputEntry();
                 return true;
             }
             return false;

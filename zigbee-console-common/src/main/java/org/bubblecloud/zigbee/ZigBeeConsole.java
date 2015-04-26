@@ -71,8 +71,8 @@ public final class ZigBeeConsole {
 	private final boolean resetNetwork;
     private final File networkStateFile;
 
-    private InputStream inputStream;
-    private PrintStream printStream;
+    private final InputStream inputStream;
+    private final PrintStream printStream;
 
     private final Set<Observer> observers = new HashSet<>();
 
@@ -81,8 +81,8 @@ public final class ZigBeeConsole {
 		this.pan          = pan;
 		this.channel      = channel;
 		this.resetNetwork = resetNetwork;
-       // this.inputStream  = inputStream;
-        //this.printStream  = new PrintStream(outputStream);
+        this.inputStream  = inputStream;
+        this.printStream  = new PrintStream(outputStream);
 
         networkStateFile = new File(NetworkStateFileName);
 
@@ -106,6 +106,7 @@ public final class ZigBeeConsole {
         commands.put("unsubscribe", new UnsubscribeCommand());
         commands.put("read", 		new ReadCommand());
         commands.put("write", 		new WriteCommand());
+        commands.put("join",        new JoinCommand());
     }
 
     public final void addObserver(Observer observer) {
@@ -146,13 +147,13 @@ public final class ZigBeeConsole {
             print("ZigBee API starting up ... [OK]");
         }
 
-        /* TODO Use something like a command line parameter to decide if permit join is re-enabled */
-        if (!zigbeeApi.permitJoin(false)) {
+        // TODO Use something like a command line parameter to decide if permit join is re-enabled
+        // Lets disable the join functionality in console by default to improve security.
+        /*if (!zigbeeApi.permitJoin(true)) {
             print("ZigBee API permit join enable ... [FAIL]");
-            return;
         } else {
             print("ZigBee API permit join enable ... [OK]");
-        }
+        }*/
 
         zigbeeApi.addDeviceListener(new DeviceListener() {
             @Override
@@ -162,6 +163,7 @@ public final class ZigBeeConsole {
 
             @Override
             public void deviceUpdated(Device device) {
+                print("Device updated: " + device.getEndpointId() + " (#" + device.getNetworkAddress() + ")");
             }
 
             @Override
@@ -303,9 +305,14 @@ public final class ZigBeeConsole {
      *
      * @param line the line
      */
+<<<<<<< HEAD
     private void print(final String line) {
         printStream.println(System.lineSeparator() + line);
         printStream.print("> ");
+=======
+    private static void print(final String line) {
+        System.out.println("\r" + line);
+>>>>>>> master
     }
 
     /**
@@ -1267,6 +1274,49 @@ public final class ZigBeeConsole {
         }
     }
 
+    private class JoinCommand implements ConsoleCommand {
+        /**
+         * {@inheritDoc}
+         */
+        public String getDescription() {
+            return "Enable or diable network join.";
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public String getSyntax() {
+            return "join [enable|disable]";
+        }
+        /**
+         * {@inheritDoc}
+         */
+        public boolean process(final ZigBeeApi zigbeeApi, final String[] args) {
+            if (args.length != 2) {
+                return false;
+            }
+            
+            boolean join = false;
+            if(args[1].toLowerCase().startsWith("e")) {
+            	join = true;
+            }
+
+            if (!zigbeeApi.permitJoin(join)) {
+                if (join) {
+                    print("ZigBee API permit join enable ... [FAIL]");
+                } else {
+                    print("ZigBee API permit join disable ... [FAIL]");
+                }
+            } else {
+                if (join) {
+                    print("ZigBee API permit join enable ... [OK]");
+                } else {
+                    print("ZigBee API permit join disable ... [OK]");
+                }
+            }
+            return true;
+        }
+    }
+    
     /**
      * Anonymous class report listener implementation which prints the reports to console.
      */
@@ -1283,11 +1333,4 @@ public final class ZigBeeConsole {
         }
     };
 
-    public void setPrintStream(OutputStream outStream) {
-        this.printStream = new PrintStream(outStream);
-    }
-
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
 }

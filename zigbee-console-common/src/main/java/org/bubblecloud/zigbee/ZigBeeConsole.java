@@ -59,7 +59,7 @@ public final class ZigBeeConsole {
     /**
      * The main thread.
      */
-    private Thread mainThread = null;
+    private Thread consoleThread = null;
 
     /**
      * Map of registered commands and their implementations.
@@ -81,8 +81,9 @@ public final class ZigBeeConsole {
 		this.pan          = pan;
 		this.channel      = channel;
 		this.resetNetwork = resetNetwork;
-       // this.inputStream  = inputStream;
-       // this.printStream  = new PrintStream(outputStream);
+        this.inputStream  = inputStream;
+        this.printStream  = new PrintStream(outputStream);
+        this.bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
         networkStateFile = new File(NetworkStateFileName);
 
@@ -124,7 +125,7 @@ public final class ZigBeeConsole {
 
         setState(State.Starting);
 
-        mainThread = Thread.currentThread();
+        consoleThread = Thread.currentThread();
         printStream.print("ZigBee API starting up...");
         final EnumSet<DiscoveryMode> discoveryModes = DiscoveryMode.ALL;
         //discoveryModes.remove(DiscoveryMode.LinkQuality);
@@ -155,64 +156,78 @@ public final class ZigBeeConsole {
             print("ZigBee API permit join enable ... [OK]");
         }*/
 
-        zigbeeApi.addDeviceListener(new DeviceListener() {
+        zigbeeApi.addDeviceListener(new DeviceListener()
+        {
             @Override
-            public void deviceAdded(Device device) {
+            public void deviceAdded(Device device)
+            {
                 print("Device added: " + device.getEndpointId() + " (#" + device.getNetworkAddress() + ")");
             }
 
             @Override
-            public void deviceUpdated(Device device) {
+            public void deviceUpdated(Device device)
+            {
                 print("Device updated: " + device.getEndpointId() + " (#" + device.getNetworkAddress() + ")");
             }
 
             @Override
-            public void deviceRemoved(Device device) {
+            public void deviceRemoved(Device device)
+            {
                 print("Device removed: " + device.getEndpointId() + " (#" + device.getNetworkAddress() + ")");
             }
         });
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
 
-                if(state==State.Started) {
+                if(state == State.Started)
+                {
                     state = State.Stopping;
                 }
 
-                try {
+                try
+                {
                     inputStream.close();
-                } catch (IOException e) {
+                }
+                catch(IOException e)
+                {
                     e.printStackTrace();
                 }
-                try {
-                    mainThread.interrupt();
-                    mainThread.join();
+                try
+                {
+                    consoleThread.interrupt();
+                    consoleThread.join();
 
                     setState(State.Stopped);
-                } catch (InterruptedException e) {
+                }
+                catch(InterruptedException e)
+                {
                     return;
                 }
             }
         }));
 
+        printStream.print("Browsing network for the first time...");
         while (!(state==State.Stopping) && !networkStateFile.exists() && !zigbeeApi.isInitialBrowsingComplete()) {
-            print("Browsing network for the first time...");
+
             printStream.print('.');
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
                 break;
             }
-            print("Browsing network for the first time... [OK]");
         }
+        printStream.println("[OK]");
+
         print("There are " + zigbeeApi.getDevices().size() + " known devices in the network.");
 
         print("ZigBee console ready.");
 
         String inputLine;
-        while (!(state==State.Stopping) && (inputLine = readLine()) != null) {
-            processInputLine(inputLine);
+        while (!(state==State.Stopping) && (inputLine = readLine()) != null) {processInputLine(inputLine);
         }
 
         stop();
@@ -315,14 +330,24 @@ public final class ZigBeeConsole {
      * @return line readLine from console or null if exception occurred.
      */
     private String readLine() {
+        String inputLine = "";
         printStream.print(System.lineSeparator()+"> ");
         try {
-            final BufferedReader bufferRead = new BufferedReader(new InputStreamReader(inputStream));
-            final String inputLine = bufferRead.readLine();
-            return inputLine;
+
+            inputLine = bufferedReader.readLine();
+
+            //int c;
+            //while((c=inputStream.read())!='\n')
+            //{
+            //    inputLine += (char)c;
+            //}
+
+            //inputLine = bufferRead.readLine();
         } catch(final IOException e) {
-            return null;
+            inputLine = null;
         }
+
+        return inputLine;
     }
 
     /**
@@ -1328,19 +1353,22 @@ public final class ZigBeeConsole {
     };
 
 
-    public InputStream getInputStream() {
-        return inputStream;
-    }
+    //public InputStream getInputStream() {
+    //    return inputStream;
+    //}
 
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
+    BufferedReader bufferedReader = null;
 
-    public PrintStream getPrintStream() {
-        return printStream;
-    }
-
-    public void setPrintStream(PrintStream printStream) {
-        this.printStream = printStream;
-    }
+    //public void setInputStream(InputStream inputStream) {
+    //    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+    //    this.inputStream = inputStream;
+    //}
+//
+    //public PrintStream getPrintStream() {
+    //    return printStream;
+    //}
+//
+    //public void setPrintStream(PrintStream printStream) {
+    //    this.printStream = printStream;
+    //}
 }

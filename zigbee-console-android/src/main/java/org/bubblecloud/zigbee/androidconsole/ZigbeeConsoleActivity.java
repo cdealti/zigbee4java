@@ -42,8 +42,6 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
         public void onServiceConnected(ComponentName name, IBinder service) {
             serviceBound = true;
             zigbeeAndroidService = ((ZigbeeAndroidService.ZigbeeAndroidServiceBinder)service).getService();
-            zigbeeAndroidService.setInput(inputStream);
-            zigbeeAndroidService.setOutput(outputStream);
 
             inputStream.addInputEntry();
 
@@ -71,8 +69,6 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
     };
 
     private EditTextInputStream inputStream;
-
-    private OutputStream outputStream;
 
     private LinearLayout mainScreen;
 

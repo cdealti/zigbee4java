@@ -34,19 +34,7 @@ public class ZigbeeAndroidService extends Service{
 
     @Override
     public void onCreate() {
-
         super.onCreate();
-
-        final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-
-        final AndroidUsbSerialPort usbSerialPort = new AndroidUsbSerialPort(usbManager);
-
-        //final InputStream commandInputStream = new EditTextInputStream(commandInputEditText, this);
-        //final OutputStream logOutputStream    = new TextViewOutputStream(logOutputTextView);
-
-        console = new ZigBeeConsole(usbSerialPort, Zigbee_PAN_ID, Zigbee_Channel, false, null, null);
-
-
     }
 
     @Override
@@ -54,14 +42,28 @@ public class ZigbeeAndroidService extends Service{
         return localBinder;
     }
 
-    class ZigbeeAndroidServiceBinder extends Binder{
+    class ZigbeeAndroidServiceBinder extends Binder {
 
         ZigbeeAndroidService getService(){
             return ZigbeeAndroidService.this;
         }
     }
 
+    private InputStream  inputStream  = null;
+    private OutputStream outputStream = null;
+
     public void startConsole(){
+
+        final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        final AndroidUsbSerialPort usbSerialPort = new AndroidUsbSerialPort(usbManager);
+
+        if(inputStream==null || outputStream==null)
+        {
+            throw new RuntimeException("Input/Output null");
+        }
+
+        console = new ZigBeeConsole(usbSerialPort, Zigbee_PAN_ID, Zigbee_Channel, false, inputStream, outputStream);
+
         console.start();
         consoleStarted = true;
     }
@@ -69,14 +71,6 @@ public class ZigbeeAndroidService extends Service{
     public void stopConsole(){
         console.stop();
         consoleStarted = false;
-    }
-
-    public void setInput(InputStream input){
-        console.setInputStream(input);
-    }
-
-    public void setOutput(OutputStream output){
-        console.setPrintStream(new PrintStream(output));
     }
 
     @Override
@@ -88,7 +82,7 @@ public class ZigbeeAndroidService extends Service{
                 public void run() {
                     startConsole();
                 }
-            }).start();
+            }, "ZigbeeConsoleThread").start();
 
         }
 

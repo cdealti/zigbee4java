@@ -38,7 +38,7 @@ public final class EditTextInputStream extends InputStream
     final TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener()
     {
         @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+        public boolean onEditorAction(final TextView v, int actionId, KeyEvent event)
         {
             if(actionId == EditorInfo.IME_ACTION_GO)
             {
@@ -53,10 +53,9 @@ public final class EditTextInputStream extends InputStream
                         buffer.push(c);
                     }
 
-                    buffer.notify();
+                    buffer.notifyAll();
+                    addInputEntry();
                 }
-
-
 
 //                v.setText("");
 //                v.clearFocus();
@@ -64,7 +63,6 @@ public final class EditTextInputStream extends InputStream
 //                InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 //                inputManager.toggleSoftInput(0, 0);
 
-                addInputEntry();
                 return true;
             }
             return false;
@@ -99,8 +97,22 @@ public final class EditTextInputStream extends InputStream
                 }
             }
 
-            return buffer.pop();
+            Character c = buffer.pop();
+
+            return c;
         }
+    }
+
+    @Override
+    public int read(final byte[] array) throws IOException
+    {
+        return super.read(array);
+    }
+
+    @Override
+    public int read(final byte[] array, final int byteOffset, final int byteCount) throws IOException
+    {
+        return super.read(array, byteOffset, byteCount);
     }
 
     public void addInputEntry(){

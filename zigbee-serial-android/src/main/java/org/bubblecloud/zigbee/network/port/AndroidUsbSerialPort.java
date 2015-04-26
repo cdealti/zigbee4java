@@ -120,7 +120,7 @@ public class AndroidUsbSerialPort implements ZigBeePort
 
     public AndroidUsbSerialPort(UsbManager usbManager)
     {
-        this(usbManager, Baud.Rate_38400, DataBits.Bits_8, Parity.None, Stop.Bits_1);
+        this(usbManager, Baud.Rate_115200, DataBits.Bits_8, Parity.None, Stop.Bits_1);
     }
 
     public AndroidUsbSerialPort(UsbManager manager, Baud baud, DataBits dataBits, Parity parity, Stop stop)
@@ -207,25 +207,30 @@ public class AndroidUsbSerialPort implements ZigBeePort
             packetOutBuffer = ByteBuffer.allocate(writeEndpoint.getMaxPacketSize());
             packetInBuffer  = ByteBuffer.allocate(readEndpoint.getMaxPacketSize());
 
-            try
+            synchronized(connectionMutex)
             {
-                deviceConnection = manager.openDevice(cc2531Device);
-            }
-            catch(SecurityException e)
-            {
-                throw new IOException();
-            }
+                try
+                {
+                    deviceConnection = manager.openDevice(cc2531Device);
+                }
+                catch(SecurityException e)
+                {
+                    throw new IOException();
+                }
 
-            if (deviceConnection==null)
-                throw new IOException("Couldn't open CDC ACM device");
+                if(deviceConnection == null)
+                    throw new IOException("Couldn't open CDC ACM device");
 
-            if (!deviceConnection.claimInterface(controlInterface, true))
-                throw new IOException("Couldn't open CDC ACM device: failed to claim ctrl interface");
+                if(!deviceConnection.claimInterface(controlInterface, true))
+                    throw new IOException(
+                            "Couldn't open CDC ACM device: failed to claim ctrl interface");
 
-            if (!deviceConnection.claimInterface(dataInterface, true))
-            {
-                deviceConnection.releaseInterface(controlInterface);
-                throw new IOException("Couldn't open CDC ACM device: failed to claim data interface");
+                if(!deviceConnection.claimInterface(dataInterface, true))
+                {
+                    deviceConnection.releaseInterface(controlInterface);
+                    throw new IOException(
+                            "Couldn't open CDC ACM device: failed to claim data interface");
+                }
             }
 
             sendLineCoding();
@@ -543,45 +548,50 @@ public class AndroidUsbSerialPort implements ZigBeePort
         return deviceConnection.controlTransfer(USB_ACM_REQUEST_TYPE, request, value, 0, message, message.length, TIMEOUT_MS);
     }
 
+    private final Object connectionMutex = new Object();
+
     public void close()
     {
-        boolean isOpen = deviceConnection != null;
-
-        if (isOpen)
+        synchronized(connectionMutex)
         {
-            deviceConnection.close();
-            deviceConnection = null;
+            boolean isOpen = deviceConnection != null;
 
-            packetInBuffer = null;
-            packetOutBuffer = null;
+            if(isOpen)
+            {
+                deviceConnection.close();
+                deviceConnection = null;
 
-            readBuffer.clear();
-            writeBuffer.clear();
+                packetInBuffer = null;
+                packetOutBuffer = null;
 
-            try
-            {
-                inputStream.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                inputStream = null;
-            }
+                readBuffer.clear();
+                writeBuffer.clear();
 
-            try
-            {
-                outputStream.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                outputStream = null;
+                try
+                {
+                    inputStream.close();
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();
+                }
+                finally
+                {
+                    inputStream = null;
+                }
+
+                try
+                {
+                    outputStream.close();
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();
+                }
+                finally
+                {
+                    outputStream = null;
+                }
             }
         }
     }

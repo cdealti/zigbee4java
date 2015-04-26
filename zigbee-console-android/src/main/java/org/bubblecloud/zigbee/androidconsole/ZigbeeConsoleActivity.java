@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,9 +42,10 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             serviceBound = true;
+
             zigbeeAndroidService = ((ZigbeeAndroidService.ZigbeeAndroidServiceBinder)service).getService();
 
-            inputStream.addInputEntry();
+            zigbeeAndroidService.setStreams(inputStream, outputStream);
 
             if(zigbeeAndroidService.isConsoleStarted()){
                 handler.post(new Runnable() {
@@ -68,7 +70,8 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
         }
     };
 
-    private EditTextInputStream inputStream;
+    private EditTextInputStream  inputStream;
+    private TextViewOutputStream outputStream;
 
     private LinearLayout mainScreen;
 
@@ -101,9 +104,18 @@ public class ZigbeeConsoleActivity extends ActionBarActivity implements View.OnC
 
         mainScreen = (LinearLayout)findViewById(R.id.main_screen);
 
-        inputStream = new EditTextInputStream(this, mainScreen);
 
-        outputStream = new TextViewOutputStream(this,mainScreen);
+
+        LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final EditText editText = (EditText)layoutInflater.inflate(R.layout.input_entry,
+                                                                   mainScreen,
+                                                                   false);
+
+        final TextView logText = (TextView)layoutInflater.inflate(R.layout.display_entry,mainScreen,false);
+
+        inputStream = new EditTextInputStream(editText);
+
+        outputStream = new TextViewOutputStream(logText, handler);
 
         startOrStopBtn = (Button)findViewById(R.id.btn_start_stop_service);
 

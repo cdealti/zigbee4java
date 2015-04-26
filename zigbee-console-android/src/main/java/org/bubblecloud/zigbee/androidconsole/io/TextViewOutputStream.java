@@ -1,12 +1,7 @@
 package org.bubblecloud.zigbee.androidconsole.io;
 
-import android.content.Context;
 import android.os.Handler;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.bubblecloud.zigbee.androidconsole.R;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,19 +13,13 @@ import java.io.OutputStream;
  */
 public final class TextViewOutputStream extends OutputStream
 {
-    private final Context context;
-
-    private final LinearLayout mainScreen;
-
+    private TextView textView;
     private Handler handler;
 
-
-    public TextViewOutputStream(Context context, LinearLayout screen)
+    public TextViewOutputStream(TextView textView, Handler handler)
     {
-        this.context = context;
-        this.mainScreen = screen;
-
-        handler = new Handler(context.getMainLooper());
+        this.handler  = handler;
+        this.textView = textView;
     }
 
     final StringBuilder stringBuilder = new StringBuilder();
@@ -38,7 +27,7 @@ public final class TextViewOutputStream extends OutputStream
     @Override
     public void write(final int character) throws IOException
     {
-        stringBuilder.append((char)character);
+        stringBuilder.append((char) character);
 
         switch(character)
         {
@@ -46,27 +35,18 @@ public final class TextViewOutputStream extends OutputStream
             case '\r':
             {
                 final String logLine = stringBuilder.toString();
-                addLogEntry(logLine);
+
+                handler.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        textView.append(logLine);
+                    }
+                });
+
                 stringBuilder.setLength(0);
             }
         }
-    }
-
-    public void addLogEntry(final String log){
-
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        final TextView logText = (TextView)inflater.inflate(R.layout.display_entry,mainScreen,false);
-
-        logText.setText(log);
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                mainScreen.addView(logText);
-            }
-        });
-
-
     }
 }

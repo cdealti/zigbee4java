@@ -25,7 +25,6 @@ public class ZigbeeAndroidService extends Service{
             Zigbee_Channel = 11,
             Zigbee_PAN_ID  = 4952;
 
-
     private final IBinder localBinder = new ZigbeeAndroidServiceBinder();
 
     private ZigBeeConsole console;
@@ -51,6 +50,12 @@ public class ZigbeeAndroidService extends Service{
 
     private InputStream  inputStream  = null;
     private OutputStream outputStream = null;
+
+    public void setStreams(InputStream inputStream, OutputStream outputStream)
+    {
+        this.inputStream  = inputStream;
+        this.outputStream = outputStream;
+    }
 
     public void startConsole(){
 

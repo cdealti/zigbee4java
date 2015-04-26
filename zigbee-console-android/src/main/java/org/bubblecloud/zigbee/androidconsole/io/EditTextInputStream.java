@@ -27,12 +27,6 @@ public final class EditTextInputStream extends InputStream
 {
     final FIFOBuffer<Character> buffer = new CircularFIFOBufferImpl<Character>();
 
-    final LinearLayout mainScreen;
-
-    final Context context;
-
-    private Handler handler;
-
     private final static String TAG = EditTextInputStream.class.getSimpleName();
 
     final TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener()
@@ -40,7 +34,7 @@ public final class EditTextInputStream extends InputStream
         @Override
         public boolean onEditorAction(final TextView v, int actionId, KeyEvent event)
         {
-            if(actionId == EditorInfo.IME_ACTION_GO)
+            if(actionId == EditorInfo.IME_ACTION_UNSPECIFIED)
             {
                 synchronized(buffer)
                 {
@@ -49,19 +43,13 @@ public final class EditTextInputStream extends InputStream
                         buffer.push(c);
                     }
 
-                    for(Character c:System.getProperty("line.separator").toCharArray()){
+                    for(Character c:System.getProperty("line.separator").toCharArray())
+                    {
                         buffer.push(c);
                     }
 
                     buffer.notifyAll();
-                    addInputEntry();
                 }
-
-//                v.setText("");
-//                v.clearFocus();
-//
-//                InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//                inputManager.toggleSoftInput(0, 0);
 
                 return true;
             }
@@ -69,14 +57,11 @@ public final class EditTextInputStream extends InputStream
         }
     };
 
-    public EditTextInputStream(final Context context, LinearLayout mainScreen)
+    private final EditText editText;
+
+    public EditTextInputStream(EditText editText)
     {
-        this.context = context;
-
-        this.mainScreen = mainScreen;
-
-        handler = new Handler(context.getMainLooper());
-
+        this.editText = editText;
     }
 
     @Override
@@ -102,37 +87,4 @@ public final class EditTextInputStream extends InputStream
             return c;
         }
     }
-
-    @Override
-    public int read(final byte[] array) throws IOException
-    {
-        return super.read(array);
-    }
-
-    @Override
-    public int read(final byte[] array, final int byteOffset, final int byteCount) throws IOException
-    {
-        return super.read(array, byteOffset, byteCount);
-    }
-
-    public void addInputEntry(){
-
-       LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-       final EditText editText = (EditText)layoutInflater.inflate(R.layout.input_entry, mainScreen, false);
-
-       editText.setOnEditorActionListener(actionListener);
-
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                mainScreen.addView(editText);
-            }
-        });
-
-
-    }
-
-
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -36,7 +37,7 @@ public final class EditTextInputStream extends InputStream
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
         {
-            if(actionId == EditorInfo.IME_ACTION_DONE)
+            if(actionId == EditorInfo.IME_ACTION_GO)
             {
                 synchronized(buffer)
                 {
@@ -44,10 +45,15 @@ public final class EditTextInputStream extends InputStream
                     {
                         buffer.push(c);
                     }
+
+                    for(Character c:System.getProperty("line.separator").toCharArray()){
+                        buffer.push(c);
+                    }
+
+                    buffer.notify();
                 }
 
-                buffer.push('\n');
-                buffer.notify();
+
 
 //                v.setText("");
 //                v.clearFocus();
@@ -93,7 +99,7 @@ public final class EditTextInputStream extends InputStream
         }
     }
 
-    private void addInputEntry(){
+    public void addInputEntry(){
 
        LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -111,4 +117,6 @@ public final class EditTextInputStream extends InputStream
 
 
     }
+
+
 }

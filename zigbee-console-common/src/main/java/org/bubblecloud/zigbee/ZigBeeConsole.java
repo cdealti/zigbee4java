@@ -147,7 +147,7 @@ public final class ZigBeeConsole {
         }
 
         /* TODO Use something like a command line parameter to decide if permit join is re-enabled */
-        if (!zigbeeApi.permitJoin(true)) {
+        if (!zigbeeApi.permitJoin(false)) {
             print("ZigBee API permit join enable ... [FAIL]");
             return;
         } else {

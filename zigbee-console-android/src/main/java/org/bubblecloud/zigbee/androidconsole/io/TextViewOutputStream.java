@@ -52,7 +52,7 @@ public final class TextViewOutputStream extends OutputStream
         }
     }
 
-    private void addLogEntry(final String log){
+    public void addLogEntry(final String log){
 
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 

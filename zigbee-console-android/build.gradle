@@ -11,8 +11,7 @@ android {
     lintOptions {
         abortOnError false
     }
-    compileSdkVersion 18
-    buildToolsVersion '21.0.0'
+
 }
 
 dependencies {

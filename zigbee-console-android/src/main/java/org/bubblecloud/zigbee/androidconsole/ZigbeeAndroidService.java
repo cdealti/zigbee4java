@@ -39,7 +39,7 @@ public class ZigbeeAndroidService extends Service{
 
         final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
-        final AndroidUsbSerialPort usbSerialPort = new AndroidUsbSerialPort(usbManager);
+        final AndroidUsbSerialPort usbSerialPort = new AndroidUsbSerialPort(usbManager,this);
 
         //final InputStream commandInputStream = new EditTextInputStream(commandInputEditText, this);
         //final OutputStream logOutputStream    = new TextViewOutputStream(logOutputTextView);

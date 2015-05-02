@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Observable;
+
 
 /**
  * The zigbee network manager port port implementation.
@@ -51,8 +53,8 @@ import java.util.HashSet;
  * @author <a href="mailto:tommi.s.e.laukkanen@gmail.com">Tommi S.E. Laukkanen</a>
  * @author <a href="mailto:christopherhattonuk@gmail.com">Chris Hatton</a>
  */
-public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
-
+public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
+{
     private final static Logger logger = LoggerFactory.getLogger(ZigBeeNetworkManagerImpl.class);
     private final static Logger logger4Waiter = LoggerFactory.getLogger(WaitForCommand.class);
 
@@ -141,7 +143,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
             logger.trace("Using RESEND_MAX_RETRY set as DEFAULT {}", aux);
         }
         RESEND_ONLY_EXCEPTION = b;
-        state = DriverStatus.CLOSED;
+        setState(DriverStatus.CLOSED);
         this.cleanStatus = cleanNetworkStatus;
         setPort(port);
         setZigBeeNetwork((byte) channel, (short) pan);
@@ -150,7 +152,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
 
     public void startup() {
         if (state == DriverStatus.CLOSED) {
-            state = DriverStatus.CREATED;
+            setState(DriverStatus.CREATED);
             logger.trace("Initializing hardware.");
             setState(DriverStatus.HARDWARE_INITIALIZING);
             if (initializeHardware()) {

@@ -40,11 +40,15 @@ public class AndroidUsbSerialPort implements ZigBeePort
         public void onReceive(final Context context, final Intent intent)
         {
             String action = intent.getAction();
-            if(ACTION_USB_PERMISSION.equals(action)){
-                synchronized(this){
+            if(ACTION_USB_PERMISSION.equals(action))
+            {
+                synchronized(this)
+                {
                     UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                    if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)){
-                        if(device != null){
+                    if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false))
+                    {
+                        if(device != null)
+                        {
                             try
                             {
                                 openPort(device);
@@ -207,8 +211,12 @@ public class AndroidUsbSerialPort implements ZigBeePort
                 }
             }
 
-            if(!manager.hasPermission(cc2531Device)){
-
+            if(manager.hasPermission(cc2531Device))
+            {
+                openPort(cc2531Device);
+            }
+            else
+            {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0,new Intent(ACTION_USB_PERMISSION),0);
 
                 IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -217,19 +225,13 @@ public class AndroidUsbSerialPort implements ZigBeePort
 
                 manager.requestPermission(cc2531Device, pendingIntent);
             }
-            else{
-                openPort(cc2531Device);
-                return true;
-            }
-
-
         }
         catch(IOException ioe)
         {
             return false;
         }
 
-        return false;
+        return true;
     }
 
     @Override
@@ -505,9 +507,6 @@ public class AndroidUsbSerialPort implements ZigBeePort
             {
                 if (deviceConnection == null)
                     throw new IOException("Connection closed.");
-
-                //if (i < 0)
-                //    throw new IllegalArgumentException();
 
                 synchronized (writeMonitor)
                 {

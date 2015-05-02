@@ -27,47 +27,42 @@ public final class EditTextInputStream extends InputStream
 {
     final FIFOBuffer<Character> buffer = new CircularFIFOBufferImpl<Character>();
 
-    private final static String TAG = EditTextInputStream.class.getSimpleName();
-
-    final TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener()
-    {
-        @Override
-        public boolean onEditorAction(final TextView v, int actionId, KeyEvent event)
-        {
-            if(actionId == EditorInfo.IME_ACTION_UNSPECIFIED)
-            {
-                synchronized(buffer)
-                {
-                    for(Character c : v.getText().toString().toCharArray())
-                    {
-                        buffer.push(c);
-                    }
-
-                    for(Character c:System.getProperty("line.separator").toCharArray())
-                    {
-                        buffer.push(c);
-                    }
-
-                    buffer.notifyAll();
-                }
-
-                return true;
-            }
-            return false;
-        }
-    };
-
-    private final EditText editText;
-
     public EditTextInputStream(EditText editText)
     {
-        this.editText = editText;
+        final TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction(final TextView textView, int actionId, KeyEvent event)
+            {
+                if(actionId == EditorInfo.IME_ACTION_UNSPECIFIED)
+                {
+                    synchronized(buffer)
+                    {
+                        for(Character c : textView.getText().toString().toCharArray())
+                        {
+                            buffer.push(c);
+                        }
+
+                        for(Character c:System.getProperty("line.separator").toCharArray())
+                        {
+                            buffer.push(c);
+                        }
+
+                        buffer.notifyAll();
+                    }
+
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        editText.setOnEditorActionListener(actionListener);
     }
 
     @Override
     public int read() throws IOException
     {
-        Log.i(TAG, "Read called");
         synchronized(buffer)
         {
             while(buffer.size() == 0)

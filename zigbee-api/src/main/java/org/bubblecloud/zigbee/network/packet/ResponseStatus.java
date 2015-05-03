@@ -130,7 +130,7 @@ public enum ResponseStatus {
 
     public static ResponseStatus getStatus(int value) {
         if (!mapping.containsKey(value)) {
-            logger.warn("Unknown status value: " + value);
+            logger.warn("Unknown state value: " + value);
         }
         return mapping.get(value);
     }

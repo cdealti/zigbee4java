@@ -122,13 +122,13 @@ public class AF_INCOMING_MSG extends ZToolPacket /*implements IINDICATION,IAF*/ 
     }
 
     /// <name>TI.ZPI2.AF_INCOMING_MSG.SECURITY_STATUS</name>
-    /// <summary>Security status</summary>
+    /// <summary>Security state</summary>
     public class SECURITY_STATUS {
         /// <name>TI.ZPI2.AF_INCOMING_MSG.SECURITY_STATUS.ENABLED</name>
-        /// <summary>Security status</summary>
+        /// <summary>Security state</summary>
         public static final int ENABLED = 1;
         /// <name>TI.ZPI2.AF_INCOMING_MSG.SECURITY_STATUS.NOT_ENABLED</name>
-        /// <summary>Security status</summary>
+        /// <summary>Security state</summary>
         public static final int NOT_ENABLED = 0;
     }
 

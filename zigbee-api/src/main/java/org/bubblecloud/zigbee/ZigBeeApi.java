@@ -42,6 +42,8 @@ import org.bubblecloud.zigbee.api.device.impl.*;
 import org.bubblecloud.zigbee.api.DeviceBase;
 import org.bubblecloud.zigbee.network.port.ZigBeeNetworkManagerImpl;
 import org.bubblecloud.zigbee.network.port.ZigBeePort;
+import org.bubblecloud.zigbee.util.LifecycleState;
+import org.bubblecloud.zigbee.util.ObservableState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,10 @@ import java.util.*;
  * @author <a href="mailto:christopherhattonuk@gmail.com">Chris Hatton</a>
  */
 public class ZigBeeApi implements EndpointListener, DeviceListener {
+
+    private final ObservableState<LifecycleState> state = new ObservableState<>(LifecycleState.Stopped);
+    public final ObservableState<LifecycleState> getState() { return state; }
+
     /**
      * The logger.
      */
@@ -101,9 +107,10 @@ public class ZigBeeApi implements EndpointListener, DeviceListener {
      */
     public ZigBeeApi(final ZigBeePort port, final int pan, final int channel,
                      final boolean resetNetwork, final EnumSet<DiscoveryMode> discoveryModes) {
-        networkManager = new ZigBeeNetworkManagerImpl(port, NetworkMode.Coordinator, pan, channel, resetNetwork, 2500L);
+
+        networkManager   = new ZigBeeNetworkManagerImpl(port, NetworkMode.Coordinator, pan, channel, resetNetwork, 2500L);
         discoveryManager = new ZigBeeDiscoveryManager(networkManager, discoveryModes);
-        network = ApplicationFrameworkLayer.getAFLayer(networkManager).getZigBeeNetwork();
+        network          = ApplicationFrameworkLayer.getAFLayer(networkManager).getZigBeeNetwork();
 
         network.addEndpointListenerListener(this);
 
@@ -113,28 +120,85 @@ public class ZigBeeApi implements EndpointListener, DeviceListener {
         context.setClusterFactory(clusterFactory);
 
         try {
-	        context.getDeviceFactories().put(ColorDimmableLight.DEVICE_ID, new DeviceFactoryImpl(context, ColorDimmableLight.class, ColorDimmableLightDevice.class));
-	        context.getDeviceFactories().put(DimmableLight.DEVICE_ID, new DeviceFactoryImpl(context, DimmableLight.class, DimmableLightDevice.class));
-	        context.getDeviceFactories().put(IAS_Zone.DEVICE_ID, new DeviceFactoryImpl(context, IAS_Zone.class, IAS_ZoneDevice.class));
-	        context.getDeviceFactories().put(IASAncillaryControlEquipment.DEVICE_ID, new DeviceFactoryImpl(context, IASAncillaryControlEquipment.class, IASAncillaryControlEquipmentDevice.class));
-	        context.getDeviceFactories().put(IASControlAndIndicatingEquipment.DEVICE_ID, new DeviceFactoryImpl(context, IASControlAndIndicatingEquipment.class, IASControlAndIndicatingEquipmentDevice.class));
-	        context.getDeviceFactories().put(LevelControlSwitch.DEVICE_ID, new DeviceFactoryImpl(context, LevelControlSwitch.class, LevelControlSwitchDevice.class));
-	        context.getDeviceFactories().put(LightSensor.DEVICE_ID, new DeviceFactoryImpl(context, LightSensor.class, LightSensorDevice.class));
-	        context.getDeviceFactories().put(MainsPowerOutlet.DEVICE_ID, new DeviceFactoryImpl(context, MainsPowerOutlet.class, MainsPowerOutletDevice.class));
-	        context.getDeviceFactories().put(OccupancySensor.DEVICE_ID, new DeviceFactoryImpl(context, OccupancySensor.class, OccupancySensorDevice.class));
-	        context.getDeviceFactories().put(OnOffLight.DEVICE_ID, new DeviceFactoryImpl(context, OnOffLight.class, OnOffLightDevice.class));
-	        context.getDeviceFactories().put(OnOffLightSwitch.DEVICE_ID, new DeviceFactoryImpl(context, OnOffLightSwitch.class, OnOffLightSwitchDevice.class));
-	        context.getDeviceFactories().put(OnOffOutput.DEVICE_ID, new DeviceFactoryImpl(context, OnOffOutput.class, OnOffOutputDevice.class));
-	        context.getDeviceFactories().put(OnOffSwitch.DEVICE_ID, new DeviceFactoryImpl(context, OnOffSwitch.class, OnOffSwitchDevice.class));
-	        context.getDeviceFactories().put(OnOffLight.DEVICE_ID, new DeviceFactoryImpl(context, OnOffLight.class, OnOffLightDevice.class));
-	        context.getDeviceFactories().put(Pump.DEVICE_ID, new DeviceFactoryImpl(context, Pump.class, PumpDevice.class));
-	        context.getDeviceFactories().put(TemperatureSensor.DEVICE_ID, new DeviceFactoryImpl(context, TemperatureSensor.class, TemperatureSensorDevice.class));
-	        context.getDeviceFactories().put(IAS_Warning.DEVICE_ID, new DeviceFactoryImpl(context, IAS_Warning.class, IAS_Warning_Device.class));
-	        context.getDeviceFactories().put(SimpleSensorDevice.DEVICE_ID, new DeviceFactoryImpl(context, SimpleSensor.class, SimpleSensorDevice.class));
+
+            final Map<Integer,DeviceFactory> deviceFactories = context.getDeviceFactories();
+
+	        deviceFactories.put(ColorDimmableLight.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      ColorDimmableLight.class,
+                                                      ColorDimmableLightDevice.class));
+	        deviceFactories.put(DimmableLight.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      DimmableLight.class,
+                                                      DimmableLightDevice.class));
+	        deviceFactories.put(IAS_Zone.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      IAS_Zone.class,
+                                                      IAS_ZoneDevice.class));
+	        deviceFactories.put(IASAncillaryControlEquipment.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      IASAncillaryControlEquipment.class,
+                                                      IASAncillaryControlEquipmentDevice.class));
+	        deviceFactories.put(IASControlAndIndicatingEquipment.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      IASControlAndIndicatingEquipment.class,
+                                                      IASControlAndIndicatingEquipmentDevice.class));
+	        deviceFactories.put(LevelControlSwitch.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      LevelControlSwitch.class,
+                                                      LevelControlSwitchDevice.class));
+	        deviceFactories.put(LightSensor.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      LightSensor.class,
+                                                      LightSensorDevice.class));
+	        deviceFactories.put(MainsPowerOutlet.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      MainsPowerOutlet.class,
+                                                      MainsPowerOutletDevice.class));
+	        deviceFactories.put(OccupancySensor.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OccupancySensor.class,
+                                                      OccupancySensorDevice.class));
+	        deviceFactories.put(OnOffLight.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OnOffLight.class,
+                                                      OnOffLightDevice.class));
+	        deviceFactories.put(OnOffLightSwitch.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OnOffLightSwitch.class,
+                                                      OnOffLightSwitchDevice.class));
+	        deviceFactories.put(OnOffOutput.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OnOffOutput.class,
+                                                      OnOffOutputDevice.class));
+	        deviceFactories.put(OnOffSwitch.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OnOffSwitch.class,
+                                                      OnOffSwitchDevice.class));
+	        deviceFactories.put(OnOffLight.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      OnOffLight.class,
+                                                      OnOffLightDevice.class));
+            deviceFactories.put(Pump.DEVICE_ID,
+                                new DeviceFactoryImpl(context, Pump.class, PumpDevice.class));
+            deviceFactories.put(TemperatureSensor.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      TemperatureSensor.class,
+                                                      TemperatureSensorDevice.class));
+	        deviceFactories.put(IAS_Warning.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      IAS_Warning.class,
+                                                      IAS_Warning_Device.class));
+	        deviceFactories.put(SimpleSensorDevice.DEVICE_ID,
+                                new DeviceFactoryImpl(context,
+                                                      SimpleSensor.class,
+                                                      SimpleSensorDevice.class));
+
 	    } catch (Exception ex) {
 	        LOGGER.error("Failed to register DeviceFactoryImpl ", ex);
 	    }
     }
+
 
 
     /**
@@ -142,32 +206,29 @@ public class ZigBeeApi implements EndpointListener, DeviceListener {
      *
      * @return true if startup was success.
      */
-    public boolean startup() {
-        networkManager.startup();
-        context.addDeviceListener(this);
+    public void startup() {
 
-        while (true) {
-            if (networkManager.getDriverStatus() == DriverStatus.NETWORK_READY) {
-                break;
+        final ObservableState<DriverStatus> observableDriverStatus = networkManager.getDriverStatus();
+
+        DriverStatus foundStatus = observableDriverStatus.waitForAnyOf(DriverStatus.NETWORK_READY, DriverStatus.CLOSED);
+
+        switch(foundStatus) {
+            case NETWORK_READY: {
+                ApplicationFrameworkLayer.getAFLayer(networkManager).createDefaultSendingEndPoint();
+                permitJoin(false); /* disable permit join by default */
+                discoveryManager.startup();
+
+                state.set(LifecycleState.Started);
             }
-            if (networkManager.getDriverStatus() == DriverStatus.CLOSED) {
-                return false;
+            break;
+
+            case CLOSED: {
+                state.set(LifecycleState.Stopped);
             }
-            try {
-                Thread.sleep(100);
-            } catch (final InterruptedException e) {
-                return false;
-            }
+            break;
+
+            default: throw new RuntimeException();
         }
-
-        ApplicationFrameworkLayer.getAFLayer(networkManager).createDefaultSendingEndPoint();
-
-        /* disable permit join by default */
-        permitJoin(false);
-
-        discoveryManager.startup();
-
-        return true;
     }
 
     /**
@@ -184,6 +245,9 @@ public class ZigBeeApi implements EndpointListener, DeviceListener {
      * Shuts down network manager, network, context and discovery manager.
      */
     public void shutdown() {
+
+        state.set(LifecycleState.Stopping);
+
         context.removeDeviceListener(this);
         network.removeEndpointListener(this);
         discoveryManager.shutdown();

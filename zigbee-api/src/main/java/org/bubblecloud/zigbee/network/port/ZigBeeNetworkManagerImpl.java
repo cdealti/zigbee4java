@@ -33,6 +33,7 @@ import org.bubblecloud.zigbee.network.packet.zdo.*;
 import org.bubblecloud.zigbee.util.DoubleByte;
 import org.bubblecloud.zigbee.util.Integers;
 import org.bubblecloud.zigbee.network.model.*;
+import org.bubblecloud.zigbee.util.ObservableState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
+import java.util.Observer;
 
 
 /**
@@ -81,7 +83,9 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
 
     private ZigBeeInterface zigbeeInterface;
     private ZigBeePort port;
-    private DriverStatus state;
+
+    private ObservableState<DriverStatus> driverStatus = new ObservableState<>();
+
     private NetworkMode mode;
     private short pan;
     private byte channel;
@@ -98,6 +102,27 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
 
     public ZigBeeNetworkManagerImpl(ZigBeePort port, NetworkMode mode, int pan, int channel,
 									boolean cleanNetworkStatus, long timeout) {
+
+        final Observer stateObserver = new Observer()
+        {
+            private DriverStatus oldStatus;
+
+            @Override
+            public void update(final Observable o, final Object newStatusObj)
+            {
+                DriverStatus newStatus = (DriverStatus) newStatusObj;
+
+                logger.trace("{} -> {}", oldStatus, newStatus);
+
+                if(newStatus == DriverStatus.HARDWARE_READY)
+                {
+                    postHardwareEnabled();
+                }
+
+                oldStatus = newStatus;
+            }
+        };
+        driverStatus.addObserver(stateObserver);
 
         int aux = RESEND_TIMEOUT_DEFAULT;
         try {
@@ -143,7 +168,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
             logger.trace("Using RESEND_MAX_RETRY set as DEFAULT {}", aux);
         }
         RESEND_ONLY_EXCEPTION = b;
-        setState(DriverStatus.CLOSED);
+        driverStatus.set(DriverStatus.CLOSED);
         this.cleanStatus = cleanNetworkStatus;
         setPort(port);
         setZigBeeNetwork((byte) channel, (short) pan);
@@ -151,43 +176,49 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
     }
 
     public void startup() {
-        if (state == DriverStatus.CLOSED) {
-            setState(DriverStatus.CREATED);
+        if (driverStatus.is(DriverStatus.CLOSED)) {
+            driverStatus.set(DriverStatus.CREATED);
             logger.trace("Initializing hardware.");
-            setState(DriverStatus.HARDWARE_INITIALIZING);
+            driverStatus.set(DriverStatus.HARDWARE_INITIALIZING);
             if (initializeHardware()) {
-                setState(DriverStatus.HARDWARE_READY);
+                driverStatus.set(DriverStatus.HARDWARE_READY);
             } else {
                 shutdown();
                 return;
             }
 
             logger.trace("Initializing network.");
-            setState(DriverStatus.NETWORK_INITIALIZING);
+            driverStatus.set(DriverStatus.NETWORK_INITIALIZING);
             if (!initializeZigBeeNetwork()) {
                 shutdown();
-                return;
             }
         } else {
-            throw new IllegalStateException("Driver already opened, current status is:" + state);
+            throw new IllegalStateException("Driver already opened, current state is:" + driverStatus);
         }
     }
 
     public void shutdown() {
-        if (state == DriverStatus.CLOSED) {
-            logger.debug("Already CLOSED");
-            return;
+
+        switch(driverStatus.get()) {
+
+            case CLOSED:
+                logger.debug("Already CLOSED");
+                break;
+
+            case NETWORK_READY:
+                logger.trace("Closing NETWORK");
+                driverStatus.set(DriverStatus.HARDWARE_READY);
+                break;
+
+            case NETWORK_INITIALIZING:
+            case HARDWARE_READY:
+                logger.trace("Closing HARDWARE");
+                zigbeeInterface.close();
+                driverStatus.set(DriverStatus.CREATED);
+                break;
         }
-        if (state == DriverStatus.NETWORK_READY) {
-            logger.trace("Closing NETWORK");
-            setState(DriverStatus.HARDWARE_READY);
-        }
-        if (state == DriverStatus.NETWORK_INITIALIZING || state == DriverStatus.HARDWARE_READY) {
-            logger.trace("Closing HARDWARE");
-            zigbeeInterface.close();
-            setState(DriverStatus.CREATED);
-        }
-        setState(DriverStatus.CLOSED);
+
+        driverStatus.set(DriverStatus.CLOSED);
     }
 
     @SuppressWarnings("unchecked")
@@ -255,11 +286,11 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
         if (response == null) return false;
         switch (response.Status) {
             case 0: {
-                logger.info("Initialized ZigBee network with existing network state.");
+                logger.info("Initialized ZigBee network with existing network driverStatus.");
                 return true;
             }
             case 1: {
-                logger.info("Initialized ZigBee network with new or reset network state.");
+                logger.info("Initialized ZigBee network with new or reset network driverStatus.");
                 return true;
             }
             case 2: {
@@ -267,7 +298,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
                 return false;
             }
             default: {
-                logger.error("Unexpected response state for ZDO_STARTUP_FROM_APP {}", response.Status);
+                logger.error("Unexpected response driverStatus for ZDO_STARTUP_FROM_APP {}", response.Status);
                 return false;
             }
         }
@@ -312,9 +343,9 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
     private boolean configureZigBeeNetwork() {
         logger.debug("Resetting network stack.");
 
-        logger.info("Setting clean state.");
+        logger.info("Setting clean driverStatus.");
         if (!dongleSetCleanState(true)) {
-            logger.error("Unable to set clean state for dongle");
+            logger.error("Unable to set clean driverStatus for dongle");
             return false;
         }
         logger.debug("Setting channel to {}.", channel);
@@ -343,7 +374,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
             return false;
         }
         if (!dongleSetCleanState(false)) {
-            logger.error("Unable to unset clean state for dongle");
+            logger.error("Unable to unset clean driverStatus for dongle");
             return false;
         }
         return true;
@@ -466,17 +497,6 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
         return true;
     }
 
-    private void setState(DriverStatus value) {
-        logger.trace("{} -> {}", this.state, value);
-        synchronized (this) {
-            state = value;
-            notifyAll();
-        }
-        if (state == DriverStatus.HARDWARE_READY) {
-            postHardwareEnabled();
-        }
-    }
-
     private void postHardwareEnabled() {
         if (!messageListeners.contains(afMessageListenerFilter)) {
             zigbeeInterface.addAsynchronousCommandListener(afMessageListenerFilter);
@@ -488,7 +508,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
 
     private boolean waitForHardware() {
         synchronized (this) {
-            while (state == DriverStatus.CREATED || state == DriverStatus.CLOSED) {
+            while (driverStatus.is(DriverStatus.CREATED) || driverStatus.is(DriverStatus.CLOSED)) {
                 logger.debug("Waiting for hardware to become ready");
                 try {
                     wait();
@@ -501,7 +521,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
 
     private boolean waitForNetwork() {
         synchronized (this) {
-            while (state != DriverStatus.NETWORK_READY && state != DriverStatus.CLOSED) {
+            while (!driverStatus.is(DriverStatus.NETWORK_READY) && !driverStatus.is(DriverStatus.CLOSED)) {
                 logger.debug("Waiting for network to become ready");
                 try {
                     wait();
@@ -518,18 +538,18 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
     }
 
     public void setZigBeeNodeMode(NetworkMode m) {
-        if (state != DriverStatus.CLOSED) {
+        if (!driverStatus.is(DriverStatus.CLOSED)) {
             throw new IllegalStateException("Network mode can be changed only " +
-                    "if driver is CLOSED while it is:" + state);
+                    "if driver is CLOSED while it is:" + driverStatus);
         }
 //        cleanStatus = mode != m;
         mode = m;
     }
 
     public void setZigBeeNetwork(byte ch, short panId) {
-        if (state != DriverStatus.CLOSED) {
+        if (!driverStatus.is(DriverStatus.CLOSED)) {
             throw new IllegalStateException("Network mode can be changed only " +
-                    "if driver is CLOSED while it is:" + state);
+                    "if driver is CLOSED while it is:" + driverStatus);
         }
         //cleanStatus = ch != channel || panId != pan;
         channel = ch;
@@ -537,9 +557,9 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
     }
 
     public void setPort(ZigBeePort port) {
-        if (state != DriverStatus.CLOSED) {
+        if (!driverStatus.is(DriverStatus.CLOSED)) {
             throw new IllegalStateException("Serial port can be changed only " +
-                    "if driver is CLOSED while it is:" + state);
+                    "if driver is CLOSED while it is:" + driverStatus);
         }
         this.port = port;
     }
@@ -712,7 +732,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
                 }
                 if (response.Status != 0) {
                     waiter3.cleanup();
-                    logger.error("Leave SRSP error status: " + response.Status);
+                    logger.error("Leave SRSP error state: " + response.Status);
                     return false;
                 }
                 ZDO_MGMT_LEAVE_RSP responseA5 = (ZDO_MGMT_LEAVE_RSP) waiter3.getCommand(TIMEOUT);
@@ -721,7 +741,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
                     return false;
                 }
                 if (responseA5.Status != 0) {
-                    logger.error("Leave request RSP error status: " + responseA5.Status);
+                    logger.error("Leave request RSP error state: " + responseA5.Status);
                     return false;
                 }
             }
@@ -1178,15 +1198,15 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
 
     private boolean isNetworkReady() {
         synchronized (this) {
-            return state.ordinal() >= DriverStatus.NETWORK_READY.ordinal()
-                    && state.ordinal() < DriverStatus.CLOSED.ordinal();
+            return driverStatus.ordinal() >= DriverStatus.NETWORK_READY.ordinal()
+                    && driverStatus.ordinal() < DriverStatus.CLOSED.ordinal();
         }
     }
 
     private boolean isHardwareReady() {
         synchronized (this) {
-            return state.ordinal() >= DriverStatus.HARDWARE_READY.ordinal()
-                    && state.ordinal() < DriverStatus.CLOSED.ordinal();
+            return driverStatus.ordinal() >= DriverStatus.HARDWARE_READY.ordinal()
+                    && driverStatus.ordinal() < DriverStatus.CLOSED.ordinal();
         }
     }
 
@@ -1322,8 +1342,9 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
         }
     }
 
-    public DriverStatus getDriverStatus() {
-        return state;
+    @Override
+    public ObservableState<DriverStatus> getDriverStatus() {
+        return driverStatus;
     }
 
     private int[] ep, prof, dev, ver;
@@ -1531,7 +1552,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager
                             break;
                         case 9:
                             logger.debug("Started as ZigBee Coordinator");
-                            setState(DriverStatus.NETWORK_READY);
+                            driverStatus.set(DriverStatus.NETWORK_READY);
                             break;
                         case 10:
                             logger.debug("Device has lost information about its parent");

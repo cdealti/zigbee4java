@@ -88,16 +88,14 @@ public class ZigBeeDiscoveryManager implements ApplicationFrameworkMessageListen
             associationNetworkBrowser = new AssociationNetworkBrowser(importingQueue, networkManager);
             new Thread(associationNetworkBrowser, "NetworkBrowser[" + networkManager + "]").start();
         } else {
-            logger.trace("{} discovery disabled.",
-                    AssociationNetworkBrowser.class);
+            logger.trace("{} discovery disabled.", AssociationNetworkBrowser.class);
         }
 
         if (enabledDiscoveries.contains(DiscoveryMode.LinkQuality)) {
             linkQualityIndicatorNetworkBrowser = new LinkQualityIndicatorNetworkBrowser(importingQueue, networkManager);
             new Thread(linkQualityIndicatorNetworkBrowser, "LinkQualityIndicatorNetworkBrowser[" + networkManager + "]").start();
         } else {
-            logger.trace("{} discovery disabled.",
-                    LinkQualityIndicatorNetworkBrowser.class);
+            logger.trace("{} discovery disabled.", LinkQualityIndicatorNetworkBrowser.class);
         }
 
         endpointBuilder = new EndpointBuilder(importingQueue, networkManager);
@@ -177,7 +175,7 @@ public class ZigBeeDiscoveryManager implements ApplicationFrameworkMessageListen
             final ZigBeeNetwork network = ApplicationFrameworkLayer.getAFLayer(networkManager).getZigBeeNetwork();
             network.notifyNodeBrowsed(node);
         } else {
-            logger.warn("Node #{} ZDO_IEEE_ADDR_REQ failed with status {} ", sourceNetworkAddress,
+            logger.warn("Node #{} ZDO_IEEE_ADDR_REQ failed with state {} ", sourceNetworkAddress,
                     Status.getStatus((byte) result.Status));
         }
     }

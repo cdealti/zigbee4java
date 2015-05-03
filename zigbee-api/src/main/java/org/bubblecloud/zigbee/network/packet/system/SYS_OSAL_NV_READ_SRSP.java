@@ -39,7 +39,7 @@ public class SYS_OSAL_NV_READ_SRSP extends ZToolPacket /*implements IRESPONSE,IS
     /// <summary>Length of value.</summary>
     public int Len;
     /// <name>TI.ZPI2.SYS_OSAL_NV_READ_SRSP.Status</name>
-    /// <summary>The fail status is returned if the address value in the command message was not within the valid range.</summary>
+    /// <summary>The fail state is returned if the address value in the command message was not within the valid range.</summary>
     public int Status;
     /// <name>TI.ZPI2.SYS_OSAL_NV_READ_SRSP.Value</name>
     /// <summary>Dynamic array, contains the data read from the target.</summary>

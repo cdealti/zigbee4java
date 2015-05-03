@@ -57,7 +57,7 @@ public class ThreadUtils {
      * @param time the number of ms to wait
      * @since 0.4.0
      */
-    public static final void waitingUntil(long time) {
+    public static void waitingUntil(long time) {
         do {
             try {
                 final long delta = Math.max(time - System.currentTimeMillis(), 0);

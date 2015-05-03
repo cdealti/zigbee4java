@@ -33,10 +33,10 @@ public interface Threaded extends Runnable {
     /**
      * @return the {@link Thread} if any that is executing this {@link Runnable} object
      */
-    public Thread getExecutorThread();
+    Thread getExecutorThread();
 
     /**
      * Sent an {@link InterruptedException} to the {@link Thread} executing the {@link Runnable} if any
      */
-    public void interrupt();
+    void interrupt();
 }

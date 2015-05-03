@@ -74,7 +74,7 @@ public class ReporterImpl extends ReporterBase implements Reporter {
             );
             final AttributeStatusRecord results = response.getAttributeStatusRecord()[0];
             if (results.getStatus() != 0) {
-                throw new ZigBeeClusterException("ConfigureReporting answered with a Failed status: " + Status.getStatus(results.getStatus()));
+                throw new ZigBeeClusterException("ConfigureReporting answered with a Failed state: " + Status.getStatus(results.getStatus()));
             }
         } catch (ZigBeeNetworkManagerException e) {
             throw new ZigBeeClusterException(e);

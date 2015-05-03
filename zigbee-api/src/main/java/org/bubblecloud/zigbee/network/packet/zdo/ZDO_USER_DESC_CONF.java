@@ -37,7 +37,7 @@ public class ZDO_USER_DESC_CONF extends ZToolPacket /*implements IRESPONSE_CALLB
     /// <summary>Source address of the message</summary>
     public ZToolAddress16 SrcAddress;
     /// <name>TI.ZPI1.ZDO_USER_DESC_CONF.Status</name>
-    /// <summary>this field indicates status of the request</summary>
+    /// <summary>this field indicates state of the request</summary>
     public int Status;
     public ZToolAddress16 nwkAddr;
 

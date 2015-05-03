@@ -33,6 +33,6 @@ public interface Stoppable extends Runnable {
     /**
      * This method when invoked will ask the {@link Runnable} to terminate
      */
-    public void end();
+    void end();
 
 }

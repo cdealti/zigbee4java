@@ -60,7 +60,7 @@ public class ConfigureReportingResponseImpl extends ResponseImpl implements Conf
         ResponseImpl.checkGeneralCommandFrame(response, ConfigureReportingResponse.ID);
         attributes = new AttributeStatusRecord[attribs.length];
         final byte[] msg = getPayload();
-        if (msg.length == 1) { //ALL SUCCESS so attribute status field record are omitted
+        if (msg.length == 1) { //ALL SUCCESS so attribute state field record are omitted
             if (msg[0] != 0) {
                 //TODO Throw exception
             }

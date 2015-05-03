@@ -36,7 +36,7 @@ import java.util.*;
 
 /**
  * This class is a <i>singelton</i> aimed at share the <b>the Application Framework Layer</b><br>
- * status of the <b>ZigBee Base Drier</b> among all the {@link org.bubblecloud.zigbee.network.ZigBeeEndpoint} register by it.<br>
+ * state of the <b>ZigBee Base Drier</b> among all the {@link org.bubblecloud.zigbee.network.ZigBeeEndpoint} register by it.<br>
  * <br>
  * In particular, this class tracks the <i>Transaction Id</i> and the <i>Active End Point</i><br>
  * on the hardware providing access to <i>ZigBee Network</i> (currently the <b>Texas Instrument CC2480</b>)<br>
@@ -193,7 +193,7 @@ public class ApplicationFrameworkLayer {
 
         if (result.getStatus() != 0) {
             // Default end point creation failed probably due to end point already exists.
-            logger.warn("Default end point creation failed with status: {} ", Status.getStatus((byte) result.getStatus()));
+            logger.warn("Default end point creation failed with state: {} ", Status.getStatus((byte) result.getStatus()));
             return;
         }
 

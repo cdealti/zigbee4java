@@ -64,7 +64,7 @@ public class ZigBeeNetwork {
      * This method is require for implementing issues:
      * <ul>
      * <li><a href="http://zb4osgi.aaloa.org/redmine/issues/35">Blacklisting of device (#35)</a></li>
-     * <li><a href="http://zb4osgi.aaloa.org/redmine/issues/64">Base Driver should monitor the health status of device (#64)</a></li>
+     * <li><a href="http://zb4osgi.aaloa.org/redmine/issues/64">Base Driver should monitor the health state of device (#64)</a></li>
      * </ul>
      *
      * @param node

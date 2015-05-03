@@ -1,11 +1,10 @@
 package org.bubblecloud.zigbee;
 
+import org.bubblecloud.zigbee.console.ZigBeeConsole;
 import org.bubblecloud.zigbee.network.port.ZigBeeSerialPortImpl;
+import org.bubblecloud.zigbee.util.LifecycleState;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -42,6 +41,8 @@ public class ZigBeeConsoleJavaSE
         final ZigBeeConsole console = new ZigBeeConsole( serialPort, pan, channel, resetNetwork, System.in, System.out );
 
         console.start();
+
+        console.getState().waitForAnyOf(LifecycleState.Stopped, LifecycleState.Error);
 	}
 
     private static String getJarName() {

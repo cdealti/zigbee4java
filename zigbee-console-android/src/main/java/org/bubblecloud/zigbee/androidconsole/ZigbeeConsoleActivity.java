@@ -5,9 +5,8 @@ import android.content.Context;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import org.bubblecloud.zigbee.ZigBeeConsole;
+import org.bubblecloud.zigbee.console.ZigBeeConsole;
 import org.bubblecloud.zigbee.androidconsole.io.EditTextInputStream;
 import org.bubblecloud.zigbee.androidconsole.io.ScrollingLogTextViewOutputStream;
 import org.bubblecloud.zigbee.androidconsole.ui.ScrollingLogTextView;

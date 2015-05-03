@@ -52,7 +52,7 @@ public class UTIL_GET_DEVICE_INFO_RESPONSE extends ZToolPacket /*implements /*IR
     /// <summary>Short Address</summary>
     public ZToolAddress16 ShortAddress;
     /// <name>TI.ZPI1.SYS_GET_DEVICE_INFO_RESPONSE.Status</name>
-    /// <summary>The fail status is returned if the address value in the command message was not within the valid range.</summary>
+    /// <summary>The fail state is returned if the address value in the command message was not within the valid range.</summary>
     public int Status;
 
     /// <name>TI.ZPI1.SYS_GET_DEVICE_INFO_RESPONSE</name>

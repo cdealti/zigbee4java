@@ -30,6 +30,7 @@ import org.bubblecloud.zigbee.network.packet.af.AF_REGISTER;
 import org.bubblecloud.zigbee.network.packet.af.AF_REGISTER_SRSP;
 import org.bubblecloud.zigbee.network.packet.zdo.*;
 import org.bubblecloud.zigbee.network.port.ZigBeePort;
+import org.bubblecloud.zigbee.util.ObservableState;
 
 import java.util.HashSet;
 
@@ -150,10 +151,10 @@ public interface ZigBeeNetworkManager {
     public abstract int getZigBeeNodeMode();
 
     /**
-     * @return The current status of the driver
+     * @return The current state of the driver
      * @see 0.6.0
      */
-    public abstract DriverStatus getDriverStatus();
+    public abstract ObservableState<DriverStatus> getDriverStatus();
 
     HashSet<AnnounceListener> getAnnounceListeners();
 }

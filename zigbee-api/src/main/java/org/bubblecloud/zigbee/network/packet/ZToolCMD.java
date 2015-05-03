@@ -200,7 +200,7 @@ public class ZToolCMD {
     /// <summary>This function is used to send parameters contained within a beacon frame received by the MAC sublayer to the next higher layer. The function also sends a measure of the link quality and the time the beacon was received.</summary>
     public static final int NWK_BEACON_NOTIFY_INDICATION = 0x2383;
     /// <name>TI.ZPI2.MESSAGE_ID.NWK_COMM_STATUS_INDICATION</name>
-    /// <summary>This function reports a comm status error</summary>
+    /// <summary>This function reports a comm state error</summary>
     public static final int NWK_COMM_STATUS_INDICATION = 0x238d;
     /// <name>TI.ZPI2.MESSAGE_ID.NWK_DATA_CONFIRMATION</name>
     /// <summary>This function is used to send the results of a request to transfer a data SPDU (MSDU) from a local SSCS entity to a single peer SSCS entity; or multiple peer SSCS entities.</summary>
@@ -657,7 +657,7 @@ public class ZToolCMD {
     /// <summary>ZDO state change indication.</summary>
     public static final int ZDO_STATE_CHANGE_IND = 0x45c0;
     /// <name>TI.ZPI2.MESSAGE_ID.ZDO_STATUS_ERROR_RSP</name>
-    /// <summary>This message is the default message for error status.</summary>
+    /// <summary>This message is the default message for error state.</summary>
     public static final int ZDO_STATUS_ERROR_RSP = 0x45c3;
     /// <name>TI.ZPI2.MESSAGE_ID.ZDO_TC_DEVICE_IND</name>
     /// <summary>ZDO Trust Center end device announce indication.</summary>
@@ -705,7 +705,7 @@ public class ZToolCMD {
     /// <summary>Beacon Notify Indication</summary>
     public static final int ZMAC_BEACON_NOTIFY_IND = 0x4283;
     /// <name>TI.ZPI2.MESSAGE_ID.ZMAC_COMM_STATUS_IND</name>
-    /// <summary>Communcation status indication</summary>
+    /// <summary>Communcation state indication</summary>
     public static final int ZMAC_COMM_STATUS_IND = 0x428d;
     /// <name>TI.ZPI2.MESSAGE_ID.ZMAC_DATA_CNF</name>
     /// <summary>Data Request Confirmation</summary>

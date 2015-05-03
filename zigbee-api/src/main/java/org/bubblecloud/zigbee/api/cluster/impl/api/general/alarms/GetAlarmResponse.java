@@ -44,17 +44,17 @@ public interface GetAlarmResponse extends Response {
     public Status getStatus();
 
     /**
-     * @return the int representing the <i>Alarm Code</i> field. The value is valid only if <code>getStatus() = Status.SUCCESS</code>
+     * @return the int representing the <i>Alarm Code</i> field. The value is valid only if <code>getState() = Status.SUCCESS</code>
      */
     public int getAllarmCode();
 
     /**
-     * @return the int representing the <i>Cluster PROFILE_ID_HOME_AUTOMATION</i> field. The value is valid only if <code>getStatus() = Status.SUCCESS</code>
+     * @return the int representing the <i>Cluster PROFILE_ID_HOME_AUTOMATION</i> field. The value is valid only if <code>getState() = Status.SUCCESS</code>
      */
     public int getClusterID();
 
     /**
-     * @return the long representing the <i>Time stamp</i> field. The value is valid only if <code>getStatus() = Status.SUCCESS</code>
+     * @return the long representing the <i>Time stamp</i> field. The value is valid only if <code>getState() = Status.SUCCESS</code>
      */
     public long getTimestamp();
 

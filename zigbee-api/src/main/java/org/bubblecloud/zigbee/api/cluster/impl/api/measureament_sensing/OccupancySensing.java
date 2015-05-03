@@ -40,7 +40,7 @@ public interface OccupancySensing extends ZCLCluster {
 
     static final short ID = 0x0406;
     static final String NAME = "OccupancySensing";
-    static final String DESCRIPTION = "Attributes and commands for configuring occupancy sensing, and reporting occupancy status.";
+    static final String DESCRIPTION = "Attributes and commands for configuring occupancy sensing, and reporting occupancy state.";
 
     public Attribute getAttributeOccupancy();
 

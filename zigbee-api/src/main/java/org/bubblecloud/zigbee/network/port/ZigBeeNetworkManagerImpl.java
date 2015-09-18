@@ -927,7 +927,6 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
             driver.addAsynchronousCommandListener(this);
         }
 
-
         public void receivedAsynchronousCommand(ZToolPacket packet) {
             logger4Waiter.trace("Received a packet {} and waiting for {}", packet.getCMD().get16BitValue(), waitFor);
             logger4Waiter.trace("received {} {}", packet.getClass(), packet.toString());
@@ -936,6 +935,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
                 logger4Waiter.trace("Received unexpected packet: " + packet.getClass().getSimpleName());
                 return;
             }
+
             synchronized (result) {
                 result[0] = packet;
                 logger4Waiter.trace("Received expected response: {}", packet.getClass().getSimpleName());
@@ -1605,6 +1605,14 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         }
     }
 
+    public int[] getCustomEndpoints() {
+        if (ep == null) return null;
+
+        int[] endpoints = new int[ep.length];
+        System.arraycopy(ep, 0, endpoints, 0, ep.length);
+        return endpoints;
+    }
+
     private boolean checkString(String s) {
         if (s != null && !s.isEmpty()) {
             return true;
@@ -1641,7 +1649,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
                 for (int j = 0; j < this.inp[i].length; j++) {
 
                     if (this.inp[i][j] != 0 && this.inp[i][j] != -1) {
-                        input[j] = this.inp[i][j];
+                        input[--size] = this.inp[i][j];
                     }
                 }
 
@@ -1658,7 +1666,7 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
                 for (int j = 0; j < this.out[i].length; j++) {
 
                     if (this.out[i][j] != 0 && this.out[i][j] != -1)
-                        output[j] = this.out[i][j];
+                        output[--size] = this.out[i][j];
                 }
 
                 if (newDevice(new AF_REGISTER(new Byte(this.ep[i] + ""), this.prof[i], new Short(this.dev[i] + ""), new Byte(this.ver[i] + ""), input, output))) {

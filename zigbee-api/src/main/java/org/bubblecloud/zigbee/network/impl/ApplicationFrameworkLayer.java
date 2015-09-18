@@ -380,6 +380,17 @@ public class ApplicationFrameworkLayer {
                 throw new IllegalStateException("No more end point free");
             }
             default: {
+                final int[] ep = driver.getCustomEndpoints();
+                while (ep != null) {
+                    int i;
+                    for (i = 0; i < ep.length; i++) {
+                        if (ep[i] == firstFreeEndPoint) break;
+                    }
+                    if (i == ep.length) {
+                        break;
+                    }
+                    firstFreeEndPoint++;
+                }
                 firstFreeEndPoint += 1;
                 return (byte) (firstFreeEndPoint - 1);
             }

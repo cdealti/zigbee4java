@@ -96,9 +96,10 @@ public interface ZigBeeNetworkManager {
      * from the network
      *
      * @since 0.7.0
-     * @deprecated
      */
     public abstract void addCustomEndpoint(String endpointNumber, String profileID, String deviceID, String version, String inputClusters, String outputCluster);
+
+    public abstract int[] getCustomEndpoints();
 
     /**
      * <b>WARNING</b>: This method may have to wait for the initialization of the ZigBee network

@@ -27,6 +27,8 @@ import org.bubblecloud.zigbee.network.packet.af.*;
 import org.bubblecloud.zigbee.network.packet.simple.*;
 import org.bubblecloud.zigbee.network.packet.system.SYS_RESET;
 import org.bubblecloud.zigbee.network.packet.system.SYS_RESET_RESPONSE;
+import org.bubblecloud.zigbee.network.packet.system.SYS_VERSION;
+import org.bubblecloud.zigbee.network.packet.system.SYS_VERSION_RESPONSE;
 import org.bubblecloud.zigbee.network.packet.util.UTIL_GET_DEVICE_INFO;
 import org.bubblecloud.zigbee.network.packet.util.UTIL_GET_DEVICE_INFO_RESPONSE;
 import org.bubblecloud.zigbee.network.packet.zdo.*;
@@ -231,6 +233,11 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         logger.trace("Initializing network.");
 
         setState(DriverStatus.NETWORK_INITIALIZING);
+        
+        SYS_VERSION_RESPONSE version = getSystemVersion();
+        logger.info("Dongle product ID: {}", version.Product);
+        logger.info("Dongle protocol version {}", version.TransportRev);
+        logger.info("Dongle software version {}.{}.{}", version.MajorRel, version.MinorRel, version.HwRev);
 
         if (cleanStatus) {
             if (!configureZigBeeNetwork()) {
@@ -1520,6 +1527,15 @@ public class ZigBeeNetworkManagerImpl implements ZigBeeNetworkManager {
         } else {
             return -1;
         }
+    }
+    
+    public SYS_VERSION_RESPONSE getSystemVersion() {
+        SYS_VERSION_RESPONSE response =
+                (SYS_VERSION_RESPONSE) sendSynchrouns(
+						zigbeeInterface,
+                        new SYS_VERSION()
+                );
+        return response;
     }
 
     public DriverStatus getDriverStatus() {
